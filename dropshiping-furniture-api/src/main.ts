@@ -12,18 +12,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix("api");
 
-  // const config = new DocumentBuilder()
-  //   .setTitle("Dropship Furniture API")
-  //   .setDescription("API description for Dropship Furniture")
-  //   .setVersion("1.0")
-  //   .build();
-
-  // const options: SwaggerDocumentOptions = {
-  //   ignoreGlobalPrefix: false,
-  // };
-
-  // const document = SwaggerModule.createDocument(app, config, options);
-  // SwaggerModule.setup("api", app, document);
 
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
