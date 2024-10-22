@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Body, Injectable, NotFoundException, Param } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, MoreThan, Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 
@@ -26,7 +26,7 @@ export class ProductService {
 
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
-    const product = this.productRepository.create(createProductDto); // Создавање на нов објект
+    const product = this.productRepository.create(createProductDto);
     return await this.productRepository.save(product);
   }
 
@@ -45,7 +45,52 @@ export class ProductService {
     }
   }
 
-  async remove(id: number): Promise<void> {
+ async remove(id: number): Promise<void> {
     await this.productRepository.delete(id);
+  } 
+
+  async findByCategory(category: string): Promise<Product[]> {
+    return await this.productRepository.find({ where: { category } });
+  }
+
+  async findDiscountedProducts(): Promise<Product[]> {
+    return await this.productRepository.find({ where: { isOnDiscount: true } });
+  }
+
+  async findByName(name: string): Promise<Product[]> {
+    return await this.productRepository
+      .createQueryBuilder('product')
+      .where('product.name LIKE :name', { name: `%${name}%` })
+      .getMany();
+  }
+
+  async findAvailableProducts(): Promise<Product[]> {
+    return await this.productRepository.find({ where: { stock: MoreThan(0) } });
+  }
+  async findBySort(
+    sortOrder: 'lowestToHigher' | 'higherToLower' = 'lowestToHigher', 
+    sortBy: 'AtoZ' | 'ZtoA' = 'AtoZ'
+  ): Promise<Product[]> {
+    try {
+      const query = this.productRepository.createQueryBuilder('product');
+
+      if (sortOrder === 'lowestToHigher') {
+        query.addOrderBy('product.price', 'ASC');
+      } else if (sortOrder === 'higherToLower') {
+        query.addOrderBy('product.price', 'DESC');
+      }
+  
+    
+      if (sortBy === 'AtoZ') {
+        query.addOrderBy('product.name', 'ASC');
+      } else if (sortBy === 'ZtoA') {
+        query.addOrderBy('product.name', 'DESC');
+      }
+  
+      return await query.getMany();
+    } catch (error) {
+      console.error('Error occurred during product sorting:', error);  // Логирај ја грешката
+      throw new Error('Failed to fetch sorted products');
+    }
   }
 }

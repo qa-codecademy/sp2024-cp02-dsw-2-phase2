@@ -16,6 +16,7 @@ export class CreateProductDto extends PartialType(CreateCategoryDto) {
 
   @IsString()
   description: string;
+  description: string;
 
   @IsInt()
   @IsPositive()
@@ -23,6 +24,7 @@ export class CreateProductDto extends PartialType(CreateCategoryDto) {
 
   @IsInt()
   @IsPositive()
+  stock: number;
   stock: number;
 
   @IsBoolean()

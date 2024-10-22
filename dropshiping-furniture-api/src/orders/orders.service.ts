@@ -1,10 +1,10 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { In, Repository } from "typeorm";
-import { Order } from "./entities/order.entity";
-import { Product } from "src/product/entities/product.entity";
-import { CreateOrderDto } from "./dto/create-order.dto";
-import { OrderProduct } from "src/order-product/entities/order-product.entity";
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { In, Repository } from 'typeorm';
+import { Order } from './entities/order.entity';
+import { Product } from 'src/product/entities/product.entity';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { OrderProduct } from 'src/order-product/entities/order-product.entity';
 
 @Injectable()
 export class OrderService {
@@ -22,42 +22,32 @@ export class OrderService {
   }
 
   findOne(id: number): Promise<Order> {
-    return this.orderRepository.findOne({
-      where: { id },
-      relations: ["products"],
-    });
+    return this.orderRepository.findOne({ where: { id }, relations: ['products', 'orderProducts'] });
   }
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
-    if (!createOrderDto.product_ids || createOrderDto.product_ids.length === 0) {
-      throw new Error("No product IDs provided");
+    const productIds = createOrderDto.productIds;
+    if (productIds.length === 0) {
+      throw new BadRequestException('No products provided');
     }
+    const products = await this.productRepository.findBy({ id: In(productIds) });
 
-    const products = await this.productRepository.findBy({
-      id: In(createOrderDto.product_ids),
-    });
-
-    if (products.length === 0) {
-      throw new Error("No products found for the provided IDs");
-    }
-
-    // calculate total price
     const totalPrice = products.reduce((acc, product) => {
       if (product.stock < createOrderDto.quantity) {
-        throw new Error(`Not enough stock for product ID ${product.id}`);
+        throw new BadRequestException(`Not enough stock for product ID ${product.id}`);
       }
-      return acc + product.price * createOrderDto.quantity;
+      return acc + (product.price * createOrderDto.quantity);
     }, 0);
 
     const order = new Order();
     order.quantity = createOrderDto.quantity;
-    order.total_price = totalPrice;
-    order.customer_name = createOrderDto.customer_name;
-    order.customer_email = createOrderDto.customer_email;
+    order.totalPrice = totalPrice;
+    order.customerName = createOrderDto.customerName;
+    order.customerEmail = createOrderDto.customerEmail;
     order.notes = createOrderDto.notes;
+    order.products = products;
 
     const savedOrder = await this.orderRepository.save(order);
-
     for (const product of products) {
       const orderProduct = new OrderProduct();
       orderProduct.order = savedOrder;
@@ -66,7 +56,6 @@ export class OrderService {
 
       await this.orderProductRepository.save(orderProduct);
 
-      // reduce product quantity/stock
       product.stock -= createOrderDto.quantity;
       await this.productRepository.save(product);
     }
@@ -83,6 +72,9 @@ export class OrderService {
   }
 
   async remove(id: number): Promise<void> {
+    await this.orderProductRepository.delete({ order: { id } });
     await this.orderRepository.delete(id);
   }
+
+
 }
