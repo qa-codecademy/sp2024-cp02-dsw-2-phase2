@@ -14,13 +14,15 @@ export class AppService implements OnModuleInit {
 
   async seedProducts() {
     console.log('Seeding products...');
+    console.log('Products data:', productsData.products); 
   
     for (const product of productsData.products) {
       try {
+        console.log('Processing product:', product);  
         const existingProduct = await this.productService.findOne(product.id);
-        console.log(`Checking product with ID: ${product.id}, Name: ${product.name}`);
         if (!existingProduct) {
-          
+          await this.productService.create(product);  
+          console.log(`Added product: ${product.name}`);
         } else {
           console.log(`Product ${product.name} already exists.`);
         }
@@ -31,5 +33,6 @@ export class AppService implements OnModuleInit {
   
     console.log('Seeding completed.');
   }
+  
   
 }

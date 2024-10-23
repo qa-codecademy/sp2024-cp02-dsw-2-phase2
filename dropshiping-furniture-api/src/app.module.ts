@@ -10,6 +10,7 @@ import { DatabaseModule } from './database/database.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AuthModule } from './auth/auth.module';
+import { UserModule } from './users/users.module';
 
 
 @Module({
@@ -29,6 +30,7 @@ import { AuthModule } from './auth/auth.module';
     ContactModule,
     DatabaseModule,
     AuthModule,
+    UserModule
   
    
   ],
