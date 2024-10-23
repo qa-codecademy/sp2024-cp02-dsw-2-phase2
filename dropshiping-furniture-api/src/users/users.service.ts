@@ -10,6 +10,11 @@ export class UserService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
+  async findAll(): Promise<User[]> {
+    return this.userRepository.find();
+  }
+  
+
   async findById(id: number): Promise<User> {
     try {
       const foundUser = await this.userRepository.findOneByOrFail({ id });

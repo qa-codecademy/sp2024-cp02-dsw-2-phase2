@@ -14,18 +14,16 @@ export class AuthService {
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.userService.findByEmail(email);
-    console.log('User found:', user); 
     if (user) {
-      const isPasswordValid = await bcrypt.compare(pass, user.password);
-      console.log('Password valid:', isPasswordValid);  
-      if (isPasswordValid) {
-        delete user.password;
-        return user;
-      }
+        const isPasswordValid = await bcrypt.compare(pass, user.password);
+        if (isPasswordValid) {
+            delete user.password;
+            return user; 
+        }
     }
     return null;
-  }
-  
+}
+
 
   async register({ email, password, role }: RegisterUserDto) {
     const existingUser = await this.userService.findByEmail(email);
@@ -44,21 +42,23 @@ export class AuthService {
 
   async login(user: LoginUserDto) {
     const validUser = await this.validateUser(user.email, user.password);
-
+  
     if (!validUser) {
-      throw new UnauthorizedException('Invalid credentilas');
+      throw new UnauthorizedException('Invalid credentials');
     }
-
+  
     const payload = {
       email: validUser.email,
       sub: validUser.id, 
-      role: validUser.role,
+      role: validUser.role, 
     };
-
+  
     const accessToken = this.jwtService.sign(payload);
-
+  
     return {
       accessToken,
+      user: validUser, 
     };
   }
+  
 }
