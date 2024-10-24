@@ -1,8 +1,9 @@
-import { Body, Injectable, NotFoundException, Param } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, MoreThan, Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
+import { Category } from 'src/categories/entities/category.entity';
 
 
 @Injectable()
@@ -15,7 +16,9 @@ export class ProductService {
 
   async findAll(): Promise<Product[]> {
     console.log('Fetching all products');
-    const products = await this.productRepository.find();
+    const products = await this.productRepository.find({
+      relations: ['category'],
+    });
     console.log('Products retrieved:', products);
     return products;
   }
@@ -45,11 +48,11 @@ export class ProductService {
     }
   }
 
- async remove(id: number): Promise<void> {
+  async remove(id: number): Promise<void> {
     await this.productRepository.delete(id);
-  } 
+  }
 
-  async findByCategory(category: string): Promise<Product[]> {
+  async findByCategory(category: Category): Promise<Product[]> {
     return await this.productRepository.find({ where: { category } });
   }
 
@@ -68,7 +71,7 @@ export class ProductService {
     return await this.productRepository.find({ where: { stock: MoreThan(0) } });
   }
   async findBySort(
-    sortOrder: 'lowestToHigher' | 'higherToLower' = 'lowestToHigher', 
+    sortOrder: 'lowestToHigher' | 'higherToLower' = 'lowestToHigher',
     sortBy: 'AtoZ' | 'ZtoA' = 'AtoZ'
   ): Promise<Product[]> {
     try {
@@ -79,14 +82,14 @@ export class ProductService {
       } else if (sortOrder === 'higherToLower') {
         query.addOrderBy('product.price', 'DESC');
       }
-  
-    
+
+
       if (sortBy === 'AtoZ') {
         query.addOrderBy('product.name', 'ASC');
       } else if (sortBy === 'ZtoA') {
         query.addOrderBy('product.name', 'DESC');
       }
-  
+
       return await query.getMany();
     } catch (error) {
       console.error('Error occurred during product sorting:', error);  // Логирај ја грешката

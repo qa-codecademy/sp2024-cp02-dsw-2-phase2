@@ -48,6 +48,8 @@ export class ProductController {
     return this.productService.findOne(id);
   }
 
+  
+
   @Post()
   @ApiOperation({ summary: 'Create a new product', description: 'Add a new product to the store inventory.' })
   @ApiBody({ type: CreateProductDto })

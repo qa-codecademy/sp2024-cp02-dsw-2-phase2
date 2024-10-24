@@ -25,7 +25,7 @@ export class Product {
 
   @Column('simple-array', { name: 'image_url' })
   imageUrl: string[];
-  
+
   @Column('int')
   stock: number;
 
@@ -35,8 +35,8 @@ export class Product {
   @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.product, { cascade: true })
   orderProducts?: OrderProduct[];
 
-  //go dodav ova za kategorite
   @ManyToOne(() => Category, category => category.products)
   @JoinColumn({ name: 'category_id' })
   category: Category[];
 }
+

@@ -5,7 +5,8 @@ import { AppModule } from "./app.module";
 //   SwaggerDocumentOptions,
 //   SwaggerModule,
 // } from "@nestjs/swagger";
-import { ValidationPipe } from "@nestjs/common";
+// import { ValidationPipe } from "@nestjs/common";
+import { DocumentBuilder, SwaggerDocumentOptions, SwaggerModule } from "@nestjs/swagger";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

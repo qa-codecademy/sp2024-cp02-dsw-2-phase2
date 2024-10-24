@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsArray,
   IsPositive,
+  IsNumber,
 } from "class-validator";
 import { CreateProductDto } from "./create-product.dto";
 import { PartialType } from "@nestjs/mapped-types";
@@ -45,7 +46,7 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
   @IsOptional()
   stock: number;
 
-  @IsOptional()
+  @IsNumber()
   category: Category[];
 }
 

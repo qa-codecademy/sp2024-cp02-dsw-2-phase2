@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
@@ -26,7 +26,7 @@ export class OrderService {
   }
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
-    const productIds = createOrderDto.productIds;
+    const productIds = createOrderDto.product_ids;
     if (productIds.length === 0) {
       throw new BadRequestException('No products provided');
     }
@@ -41,9 +41,9 @@ export class OrderService {
 
     const order = new Order();
     order.quantity = createOrderDto.quantity;
-    order.totalPrice = totalPrice;
-    order.customerName = createOrderDto.customerName;
-    order.customerEmail = createOrderDto.customerEmail;
+    order.total_price = totalPrice;
+    order.customer_name = createOrderDto.customer_name;
+    order.customer_email = createOrderDto.customer_email;
     order.notes = createOrderDto.notes;
     order.products = products;
 

@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsArray,
   IsPositive,
+  IsNumber,
 } from "class-validator";
 import { PartialType } from "@nestjs/swagger";
 import { CreateCategoryDto } from "src/categories/dto/create-category.dto";
@@ -16,7 +17,6 @@ export class CreateProductDto extends PartialType(CreateCategoryDto) {
 
   @IsString()
   description: string;
-  description: string;
 
   @IsInt()
   @IsPositive()
@@ -25,7 +25,7 @@ export class CreateProductDto extends PartialType(CreateCategoryDto) {
   @IsInt()
   @IsPositive()
   stock: number;
-  stock: number;
+
 
   @IsBoolean()
   isOnDiscount: boolean;
@@ -34,7 +34,7 @@ export class CreateProductDto extends PartialType(CreateCategoryDto) {
   @IsOptional()
   images?: string[];
 
-  @IsOptional()
-  category: Category[]
+  @IsNumber()
+  category: Category[];
 
 }
